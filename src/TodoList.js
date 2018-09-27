@@ -1,63 +1,60 @@
-import React, {Component, Fragment} from 'react';
-import './style.css'
-import TodoItem from './TodoItem'
+import React, {Component} from 'react';
+import TodoListUI from './TodoListUI'
+import store from './store/index.js'
+import {
+  addTodoItemAction,
+  delTodoItemAction,
+  getTodoList,
+  getInputChangeAction,
+} from './store/actionCreators'
 class TodoList extends Component {
   constructor (props) {
-    super(props);
-    this.state = {
-      inputValue: '',
-      list: []
-    }
+    super(props)
+    this.state = store.getState()
+    console.log(this.state)
+    this.handleInputChange = this.handleInputChange.bind(this)
+    this.handleStoreChange = this.handleStoreChange.bind(this)
+    this.handleBtnClick = this.handleBtnClick.bind(this)
+    this.handleItemDelete = this.handleItemDelete.bind(this)
+    store.subscribe(this.handleStoreChange)
   }
-    render () {
-        return (
-            <Fragment>
-              {
-                //sss
-              }
-              <label htmlFor="insertArea">input</label>
-                <input id="insertArea" className="input" value={this.state.inputValue}
-                  onChange={this.handleInputChange.bind(this)}
-                /> <button onClick={this.handleBtnClick.bind(this)}>submit</button>
-                <ul>
-                  {
-                    this.state.list.map((item,index)=>{
-                      return (
-                      <div>
-                        <TodoItem content={item}/>
-                      </div>
+  render () {
+    return (
+      <TodoListUI
+        inputValue = {this.state.inputValue}
+        list = {this.state.list}
+        handleInputChange = {this.handleInputChange}
+        handleBtnClick = {this.handleBtnClick}
+        handleItemDelete = {this.handleItemDelete}
+      />
+    )
+  }
 
-                      )
-                    })
-                  }
-                </ul>
-            </Fragment>
-        )
-    }
+  componentDidMount () {
+    const action = getTodoList()
+    store.dispatch(action)
+  }
 
-    handleInputChange (e) {
-      console.log(this)
-      console.log(e.target.value)
-      this.setState({
-        inputValue: e.target.value
-      })
-    }
 
-    handleBtnClick (e) {
-      this.setState({
-        list: [...this.state.list, this.state.inputValue],
-        inputValue: ''
-      })
-    }
 
-    handleItemDel (index) {
-      console.log(index)
-      const list = [...this.state.list]
-      list.splice(index,1)
-      this.setState({
-        list
-      })
-    }
+  handleInputChange (e) {
+    console.log('----input---')
+    const action = getInputChangeAction(e.target.value)
+    store.dispatch(action)
+  }
+  handleStoreChange () {
+
+    this.setState(store.getState())
+  }
+  handleBtnClick () {
+    const action = addTodoItemAction()
+    store.dispatch(action)
+  }
+  handleItemDelete (index) {
+    const action = delTodoItemAction(index)
+    store.dispatch(action)
+  }
+
 }
 
 export default TodoList
